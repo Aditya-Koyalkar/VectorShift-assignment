@@ -5,10 +5,12 @@ import {
     Button,
 } from '@mui/material';
 import axios from 'axios';
+import { ContactCard } from './components/ContactCard';
 
 const endpointMapping = {
     'Notion': 'notion',
     'Airtable': 'airtable',
+    'HubSpot': 'hubspot',
 };
 
 export const DataForm = ({ integrationType, credentials }) => {
@@ -22,6 +24,7 @@ export const DataForm = ({ integrationType, credentials }) => {
             const response = await axios.post(`http://localhost:8000/integrations/${endpoint}/load`, formData);
             const data = response.data;
             setLoadedData(data);
+            console.log(data);
         } catch (e) {
             alert(e?.response?.data?.detail);
         }
@@ -30,13 +33,7 @@ export const DataForm = ({ integrationType, credentials }) => {
     return (
         <Box display='flex' justifyContent='center' alignItems='center' flexDirection='column' width='100%'>
             <Box display='flex' flexDirection='column' width='100%'>
-                <TextField
-                    label="Loaded Data"
-                    value={loadedData || ''}
-                    sx={{mt: 2}}
-                    InputLabelProps={{ shrink: true }}
-                    disabled
-                />
+            
                 <Button
                     onClick={handleLoad}
                     sx={{mt: 2}}
@@ -52,6 +49,11 @@ export const DataForm = ({ integrationType, credentials }) => {
                     Clear Data
                 </Button>
             </Box>
+            {Array.isArray(loadedData) ? (
+                loadedData.map((contact, idx) => <ContactCard key={contact.id || idx} contact={contact} />)
+            ) : loadedData && typeof loadedData === 'object' ? (
+                <ContactCard contact={loadedData} />
+            ) : null}
         </Box>
     );
 }
